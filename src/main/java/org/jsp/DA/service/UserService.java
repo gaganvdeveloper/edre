@@ -1,11 +1,11 @@
 package org.jsp.DA.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.jsp.DA.dao.UserDao;
 import org.jsp.DA.entity.User;
-import org.jsp.DA.exceptionClasses.DuplicateEntryException;
 import org.jsp.DA.exceptionClasses.NOUserFoundException;
 import org.jsp.DA.util.UserGender;
 import org.jsp.DAutil.ResponseStructure;
@@ -14,18 +14,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 public class UserService {
 
 	@Autowired
 	private UserDao dao;
-	
+
 	@Autowired
 	private EmailService emailService;
-	
 
 	@Transactional
 	public ResponseEntity<ResponseStructure<User>> saveUser(User user) {
@@ -33,8 +30,7 @@ public class UserService {
 		User savedUser = dao.saveUser(user);
 
 		emailService.sendEmail(savedUser);
-		
-		
+
 		ResponseStructure rs = ResponseStructure.builder().status(HttpStatus.OK.value())
 				.message("USER SAVED SUCCESSFULLY").body(savedUser).build();
 
@@ -168,6 +164,22 @@ public class UserService {
 				.message("User Updated successfully").body(saveUser).build();
 		ResponseEntity re = ResponseEntity.status(HttpStatus.OK).body(rs);
 
+		return re;
+	}
+
+	public ResponseEntity<?> search(String name) {
+		List<User> all = dao.findAll();
+		List<User> result = new ArrayList<>();
+		for (User u : all)
+			if (u.getName().indexOf(name) != -1)
+				result.add(u);
+		ResponseStructure rs = ResponseStructure
+												.builder()
+												.status(HttpStatus.OK.value())
+												.message("All Matching Users Found Successfully")
+												.body(result)
+												.build();
+		ResponseEntity re  = ResponseEntity.status(HttpStatus.OK).body(rs);
 		return re;
 	}
 
