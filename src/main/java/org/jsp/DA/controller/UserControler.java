@@ -42,5 +42,15 @@ public class UserControler {
 	}
 
 	
+	@GetMapping("/search/{name}")
+	public ResponseEntity<?> search(@PathVariable String name){
+		return service.search(name);
+	}
+	
+	
+	
+	
+	
+	
 
 }
